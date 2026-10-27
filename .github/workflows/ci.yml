@@ -1,0 +1,50 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - compiler: g++
+            sanitizers: OFF
+            build_type: Release
+          - compiler: clang++
+            sanitizers: OFF
+            build_type: Release
+          - compiler: g++
+            sanitizers: ON
+            build_type: Debug
+          - compiler: clang++
+            sanitizers: ON
+            build_type: Debug
+    steps:
+      - uses: actions/checkout@v4
+      - name: packages
+        run: sudo apt-get update && sudo apt-get install -y cmake g++ clang libomp-dev python3
+      - name: configure
+        run: >
+          cmake -S . -B build
+          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+          -DCMAKE_CXX_COMPILER=${{ matrix.compiler }}
+          -DEXPCODE_SANITIZERS=${{ matrix.sanitizers }}
+      - name: build
+        run: cmake --build build -j2
+      - name: test
+        run: ctest --test-dir build --output-on-failure
+
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: packages
+        run: sudo apt-get update && sudo apt-get install -y clang-format
+      - name: clang-format
+        run: |
+          files=$(git ls-files '*.cpp' '*.hpp' '*.h')
+          clang-format --dry-run --Werror $files
