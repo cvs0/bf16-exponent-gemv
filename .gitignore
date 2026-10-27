@@ -1,0 +1,11 @@
+build/
+cmake-build-*/
+.cache/
+__pycache__/
+*.pyc
+.venv/
+*.safetensors
+*.bpk
+*.bin
+/data/
+/tmp/

@@ -1,0 +1,5 @@
+numpy>=1.26
+safetensors>=0.4
+huggingface_hub>=0.24
+matplotlib>=3.8
+ml_dtypes>=0.4
